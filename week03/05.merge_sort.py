@@ -1,6 +1,6 @@
 array = [5, 3, 2, 1, 6, 8, 7, 4]
 
-
+# log_2 n 의 시간 복잡도를 갖는다
 def merge_sort(array):
     if len(array) <= 1:
         return array
