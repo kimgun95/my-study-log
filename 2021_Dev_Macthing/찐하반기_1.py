@@ -1,3 +1,4 @@
+# 구슬이 박스 안 맨 위에서 맨 아래까지 가는 경우를 찾는 문제이다
 def solution(drum):
     answer = 0
     length = len(drum)
@@ -20,6 +21,7 @@ def solution(drum):
         else:
             go(depth + 1, idx, star + 1)
 
+    # 첫 번째 줄에서 시작하는 모든 경우를 실행한다
     for i in range(length):
         go(0, i, 0)
 
