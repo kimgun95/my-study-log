@@ -1,6 +1,6 @@
 class Solution:
     def countAndSay(self, n: int) -> str:
-        # 내 코드가 살짝 길어서 깔끔한 것을 가져옴
+        # 내 코드가 살짝 길어서 깔끔한 것을 가져옴(원래 코드도 통과함)
         start = "1"
         for i in range(2, n + 1):
             count = 0
