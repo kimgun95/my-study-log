@@ -1,7 +1,7 @@
 from typing import List
 
 
-# '시간초과' 발생 코드
+# '시간초과' 발생 코드: 수정 필요
 class Solution:
     def goodDaysToRobBank(self, security: List[int], time: int) -> List[int]:
         def isDecrease(idx, depth):
