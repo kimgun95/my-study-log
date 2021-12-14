@@ -2,7 +2,7 @@
 
 매일매일 알고리즘 문제를 풀고 올리는 곳입니다.
 
-프로그래머스와 LeetCode에서 기본 문제를 풀며 이해를 하며 백준 문제를 통해 다양한 문제를 풀고 있습니다.
+프로그래머스와 LeetCode에서 기본 문제를 통해 개념 이해 후 백준을 통해 다양한 문제를 풀고 있습니다.
 
 LeetCode에서 Weekly Contest를 주단위로 참가중입니다.
 
@@ -37,7 +37,7 @@ LeetCode에서 Weekly Contest를 주단위로 참가중입니다.
 📝 Python 끄적끄적
   1. [set자료형/ map() / join() / 순열](https://blog.naver.com/harrison1995/222301546896)
   2. [input() 과 sys.stdin.readline() 비교](https://blog.naver.com/harrison1995/222536571228)
-
+  3. [Bit manipulation(비트 조작)을 이용한 간단한 문제 풀이](https://blog.naver.com/harrison1995/222594401238)
 ---
 ## Basic 자료구조/알고리즘
 
