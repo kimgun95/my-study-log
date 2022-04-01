@@ -1,31 +1,19 @@
-def calculate(cnt, width):
-    total = 0
-    total += (cnt // (width * 2 + 1))
-    if cnt % (width * 2 + 1) != 0:
-        total += 1
-    return total
+# 내 풀이는 시간초과가 발생했다. O(n)으로 해결했어야 했는데 그렇지 못함
+# 전파가 닿지 않는 곳을 좀만 쉽게 생각해서 구해야 한다
+# 추가로 math.ceil() 에 대해도 알게 되었다.
+import math
 
 
 def solution(n, stations, w):
     answer = 0
-    dp = [0] * (n + 1)
-    for s in stations:
-        left, right = s - w, s + w
-        if left < 1:
-            left = 1
-        if right > n:
-            right = n
-        for node in range(left, right + 1):
-            dp[node] = 1
-    count = 0
-    for i in range(1, n + 1):
-        if dp[i] == 0:
-            count += 1
-            if i == n:
-                answer += calculate(count, w)
-        else:
-            answer += calculate(count, w)
-            count = 0
+    distance = []
+    for idx in range(1, len(stations)): # 기지국 사이 닿지 않는 구간 계산
+        distance.append(stations[idx] - (stations[idx - 1] + 1 + 2 * w))
+    distance.append(stations[0] - (w + 1)) # 맨 앞 구간 계산
+    distance.append(n - (stations[-1] + w)) # 맨 뒤 구간 계산
+
+    for d in distance:
+        answer += math.ceil(d / (w * 2 + 1))
     return answer
 
 
