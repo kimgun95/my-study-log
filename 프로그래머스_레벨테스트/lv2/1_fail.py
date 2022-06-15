@@ -29,24 +29,28 @@ def solution(cacheSize, cities):
             self.cacheMiss(data) # 캐시 안에 데이터가 없다면
 
         def cacheHit(self, node, data):
-            node.prev.next = node.next
-            node.next.prev = node.prev
-            self.addFont(data)
-
+            self.removeNode(node)
+            self.addFront(data)
 
         def cacheMiss(self, data):
-            self.addFont(data)
+            self.addFront(data)
             if self.totalLen(data) > self.cache_size:
-                self.tail.prev.prev.next = self.tail
-                self.tail.prev = self.tail.prev.prev
+                self.removeBack()
 
-        def addFont(self, data):
+        def removeNode(self, node):
+            node.prev.next = node.next
+            node.next.prev = node.prev
+
+        def removeBack(self):
+            self.tail.prev.prev.next = self.tail
+            self.tail.prev = self.tail.prev.prev
+
+        def addFront(self, data):
             newNode = Node(data)
             self.head.next.prev = newNode
             newNode.next = self.head.next
             self.head.next = newNode
             newNode.prev = self.head
-
 
         def totalLen(self, data):
             node = self.head.next
