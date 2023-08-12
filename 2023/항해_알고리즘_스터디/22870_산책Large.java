@@ -1,116 +1,149 @@
-import java.io.*;
+
 import java.util.*;
+import java.io.*;
 
 public class Main {
 
-  private boolean[] visit;
-  private boolean[] newVisit;
-  private int[] distance;
-  private int[] before;
-  private ArrayList<Node>[] nodes;
-  private int start;
-  private int end;
-  private int n;
-  private int m;
 
-  public void solution() throws Exception {
+    private int n;
+    private int m;
+    private ArrayList<Node>[] nodes;
+    private int start;
+    private int end;
+    private boolean[] visit;
+    private int[] beforeNode;
+    private int[] distance;
+    private int answer;
 
-    BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-    StringTokenizer st = new StringTokenizer(br.readLine());
-    n = Integer.parseInt(st.nextToken());
-    m = Integer.parseInt(st.nextToken());
-    nodes = new ArrayList[n + 1];
-    for (int i = 1; i <= n; i++) {
-      nodes[i] = new ArrayList<>();
-    }
-    for (int i = 0; i < m; i++) {
-      st = new StringTokenizer(br.readLine());
-      int nodeA = Integer.parseInt(st.nextToken());
-      int nodeB = Integer.parseInt(st.nextToken());
-      int cost = Integer.parseInt(st.nextToken());
-      nodes[nodeA].add(new Node(nodeB, cost));
-      nodes[nodeB].add(new Node(nodeA, cost));
-    }
-    st = new StringTokenizer(br.readLine());
-    start = Integer.parseInt(st.nextToken());
-    end = Integer.parseInt(st.nextToken());
+    public void solution() throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        n = Integer.parseInt(st.nextToken());
+        m = Integer.parseInt(st.nextToken());
 
-    visit = new boolean[n + 1];
-    distance = new int[n + 1];
-    before = new int[n + 1];
-    for (int i = 1; i <= n; i++) {
-      distance[i] = -1;
-      before[i] = -1;
-    }
-
-    distance[start] = 0;
-    int answer = 0;
-    // 다익스트라 탐색 : 목적지 까지 최소 길이 탐색
-    dijkstra(start);
-    answer += distance[end];
-    System.out.println("distane: " + distance[end]);
-
-    newVisit = new boolean[n + 1];
-    Stack<Integer> stack = new Stack<>();
-    stack.add(before[end]);
-    while (!stack.isEmpty()) {
-      int node = stack.pop();
-      newVisit[node] = true;
-      if (before[node] == -1) break;
-      stack.add(before[node]);
-      System.out.println(node);
-    }
-
-    distance[start] = -1;
-    visit = newVisit;
-    visit[start] = false;
-    dijkstra(end);
-    answer += distance[start];
-    System.out.println("distane: " + distance[start]);
-    System.out.println(answer);
-  }
-
-  public void dijkstra(int node) {
-    visit[node] = true;
-    for (int i = 0; i < nodes[node].size(); i++) {
-      Node to = nodes[node].get(i);
-      if (visit[to.target]) continue;
-      if (distance[to.target] == -1) {
-        distance[to.target] = distance[node] + to.cost;
-        before[to.target] = node;
-      } else {
-        if (distance[to.target] > distance[node] + to.cost) {
-          distance[to.target] = distance[node] + to.cost;
-          before[to.target] = node;
+        nodes = new ArrayList[n + 1];
+        for (int i = 1; i <= n; i++) {
+            nodes[i] = new ArrayList<>();
         }
-      }
+        for (int i = 1; i <= m; i++) {
+            st = new StringTokenizer(br.readLine());
+            int nodeA = Integer.parseInt(st.nextToken());
+            int nodeB = Integer.parseInt(st.nextToken());
+            int cost = Integer.parseInt(st.nextToken());
+            nodes[nodeA].add(new Node(nodeB, cost));
+            nodes[nodeB].add(new Node(nodeA, cost));
+        }
+
+        st = new StringTokenizer(br.readLine());
+        start = Integer.parseInt(st.nextToken());
+        end = Integer.parseInt(st.nextToken());
+
+        // 입력 받은 경로를 정렬한다 -> 사전순 경로를 찾는데 최적의 재료가 되기 때문
+        for (int i = 1; i <= n; i++) {
+            Collections.sort(nodes[i]);
+        }
+
+        answer = 0;
+        // dijkstra 탐색 (s -> e)
+        visit = new boolean[n + 1];
+        beforeNode = new int[n + 1];
+        distance = new int[n + 1];
+        for (int i = 0; i < n + 1; i++) {
+            distance[i] = Integer.MAX_VALUE;
+        }
+        dijkstra(start, end);
+        answer += distance[end];
+        System.out.println("end : " + distance[end]);
+
+        // 위에서 찾은 최단 경로를 체크하기 위해 새롭게 visit 정의
+        for (int i = 0; i <= n; i++) {
+            visit[i] = false;
+            distance[i] = Integer.MAX_VALUE;
+        }
+        int checkedNode = beforeNode[end];
+        while (checkedNode > 0 && checkedNode != start) {
+            visit[checkedNode] = true;
+            System.out.println(checkedNode);
+            checkedNode = beforeNode[checkedNode];
+        }
+        System.out.println("---------------");
+        // dijkstra 최단 거리를 계산 (e -> s)
+        dijkstra(end, start);
+        answer += distance[start];
+        System.out.println("start : " + distance[start]);
+        checkedNode = beforeNode[start];
+        while (checkedNode > 0 && checkedNode != end) {
+            visit[checkedNode] = true;
+            System.out.println(checkedNode);
+            checkedNode = beforeNode[checkedNode];
+        }
+
+        System.out.println(answer);
     }
-    int minDist = Integer.MAX_VALUE;
-    int idx = -1;
-    for (int i = 1; i <= n; i++) {
-      if (!visit[i] && distance[i] != -1)
-        if (minDist > distance[i]) {
-          minDist = distance[i];
-          idx = i;
+
+    private void dijkstra(int from, int to) {
+        distance[from] = 0;
+        PriorityQueue<Info> pq = new PriorityQueue<>();
+        pq.add(new Info(from, 0, 0));
+
+        while (!pq.isEmpty()) {
+            Info info = pq.poll();
+            if (visit[info.node]) continue;
+            visit[info.node] = true;
+
+            if (info.node == to) break;
+
+            for (int i = 0; i < nodes[info.node].size(); i++) {
+                Node target = nodes[info.node].get(i);
+                if (distance[target.node] > distance[info.node] + target.cost) {
+                    distance[target.node] = distance[info.node] + target.cost;
+                    beforeNode[target.node] = info.node;
+                    pq.add(new Info(target.node, info.depth + 1, distance[target.node]));
+                }
+            }
+        }
+
+    }
+
+    private class Node implements Comparable<Node> {
+        private int node;
+        private int cost;
+
+        public Node(int node, int cost) {
+            this.node = node;
+            this.cost = cost;
+        }
+
+        @Override
+        public int compareTo(Node o) {
+            return this.node - o.node;
         }
     }
-    if (idx != -1)
-      dijkstra(idx);
-  }
 
-  public class Node {
-    private int target;
-    private int cost;
+    private class Info implements Comparable<Info> {
+        private int node;
+        private int depth;
+        private int total;
 
-    public Node(int target, int cost) {
-      this.target = target;
-      this.cost = cost;
+        public Info(int node, int depth, int total) {
+            this.node = node;
+            this.depth = depth;
+            this.total = total;
+        }
+
+        @Override
+        public int compareTo(Info o) {
+            if (this.total != o.total) {
+                return this.total - o.total;
+            }
+            return this.node - o.node;
+        }
     }
-  }
 
 
-  public static void main(String[] args) throws Exception {
-    new Main().solution();
-  }
+
+    public static void main(String[] args) throws Exception {
+        new Main().solution();
+    }
 
 }
