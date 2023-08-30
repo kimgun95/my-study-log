@@ -1,4 +1,6 @@
-
+// 고전적인 다익스트라 문제이지만 한 가지 고려를 해야 함
+// '최적의 해'를 구하기 위해선 경로가 같을 때도 체크를 한 번 해야했음
+// 이 문제를 풀기 전 22868(산책 small)을 푸는걸 추천한다
 import java.util.*;
 import java.io.*;
 
@@ -44,16 +46,15 @@ public class Main {
         }
 
         answer = 0;
-        // dijkstra 탐색 (s -> e)
         visit = new boolean[n + 1];
-        beforeNode = new int[n + 1];
-        distance = new int[n + 1];
+        beforeNode = new int[n + 1]; // 어떤 노드에서 왔는지 [이전 노드]를 저장
+        distance = new int[n + 1]; // 해당 노드까지의 최소 거리 저장
         for (int i = 0; i < n + 1; i++) {
             distance[i] = Integer.MAX_VALUE;
         }
+        // dijkstra 탐색 (s -> e)
         dijkstra(start, end);
         answer += distance[end];
-        System.out.println("end : " + distance[end]);
 
         // 위에서 찾은 최단 경로를 체크하기 위해 새롭게 visit 정의
         for (int i = 0; i <= n; i++) {
@@ -63,18 +64,15 @@ public class Main {
         int checkedNode = beforeNode[end];
         while (checkedNode > 0 && checkedNode != start) {
             visit[checkedNode] = true;
-            System.out.println(checkedNode);
             checkedNode = beforeNode[checkedNode];
         }
-        System.out.println("---------------");
+
         // dijkstra 최단 거리를 계산 (e -> s)
         dijkstra(end, start);
         answer += distance[start];
-        System.out.println("start : " + distance[start]);
         checkedNode = beforeNode[start];
         while (checkedNode > 0 && checkedNode != end) {
             visit[checkedNode] = true;
-            System.out.println(checkedNode);
             checkedNode = beforeNode[checkedNode];
         }
 
@@ -93,9 +91,22 @@ public class Main {
 
             if (info.node == to) break;
 
+            // 노드와 연결된 간선 정보들을 불러와 최적의 거리 값으로 갱신이 가능한지 확인
             for (int i = 0; i < nodes[info.node].size(); i++) {
                 Node target = nodes[info.node].get(i);
-                if (distance[target.node] > distance[info.node] + target.cost) {
+
+                // *문제를 해결한 부분*
+                // 예를 들어, "1-2-3-4-5-6"과 "1-2-5-6" 경로의 총 길이가 같을때
+                // 5에 distance 값이 4로 미리 저장이 되었다면 후에 경로가 갱신되지 않는 이상 "1-2-5-6"이 beforeNode로 저장될 것
+                // 하지만 정답 경로는 "1-2-3-4-5-6"이 되어야 하기 때문에 경로 갱신을 해야 함
+                // 따라서 distance값이 같을 때도 거리 갱신을 '고려'해야 함
+                if (distance[target.node] == distance[info.node] + target.cost) { // 더 작은 숫자로의 경로가 가능하면 갱신
+                    if (info.node > beforeNode[target.node] && info.node < target.node) {
+                        beforeNode[target.node] = info.node;
+                    }
+                }
+
+                if (distance[target.node] > distance[info.node] + target.cost) { // 기본적인 distance 갱신
                     distance[target.node] = distance[info.node] + target.cost;
                     beforeNode[target.node] = info.node;
                     pq.add(new Info(target.node, info.depth + 1, distance[target.node]));
@@ -116,7 +127,7 @@ public class Main {
 
         @Override
         public int compareTo(Node o) {
-            return this.node - o.node;
+            return this.cost - o.cost;
         }
     }
 
